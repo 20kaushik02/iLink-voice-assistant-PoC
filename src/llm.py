@@ -48,14 +48,22 @@ class LLMWrapper:
                 f"Provider '{self.provider}' not implemented yet."
             )
 
-    def prompt(
-        self,
-        prompt_text,
-    ):
+    def prompt(self, prompt_text, context=None):
+        prompt_contents = []
+        if context:
+            prompt_contents.append(
+                f"""
+Here's some context that may be useful.
+---
+{context}
+---
+Now, answer the following user query."""
+            )
+        prompt_contents.append(prompt_text)
         if self.provider == "gemini":
             response = self.client.models.generate_content(
                 model=self.model_name,
-                contents=prompt_text,
+                contents=prompt_contents,
                 config=GenerateContentConfig(
                     temperature=self.temperature,
                     system_instruction=self.system_instructions,

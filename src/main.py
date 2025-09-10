@@ -6,10 +6,12 @@ import streamlit as st
 from stt import STTWrapper
 from tts import TTSWrapper
 from llm import LLMWrapper
+from rag.store import RetrievalWrapper
 
 stt_fn = STTWrapper().transcribe
 tts_fn = TTSWrapper().speak
 llm_fn = LLMWrapper().prompt
+rag_query_fn = RetrievalWrapper().query
 
 
 def run():
@@ -42,10 +44,18 @@ def run():
 
     with output_col:
         if transcribed_input:
-            #######################
-            # text to LLM+RAG+etc.
-            #######################
-            transcribed_output = llm_fn(transcribed_input)
+            related_chunks = rag_query_fn(transcribed_input)
+            input_context = "\n---\n".join(
+                [
+                    f"""
+Document path: {chunk["metadata"]["relpath"]}
+---
+Document excerpt: {chunk["text"]}
+"""
+                    for chunk in related_chunks
+                ]
+            )
+            transcribed_output = llm_fn(transcribed_input, input_context)
 
             st.text_area(
                 label="Transcribed output:",
