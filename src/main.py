@@ -30,8 +30,6 @@ def run():
         )
 
         if spoken_input:
-            st.write("Recorded input:")
-            st.audio(spoken_input)
             with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
                 tmp.write(spoken_input.getbuffer())  # write the recorded bytes
                 tmp_path = tmp.name
@@ -57,16 +55,10 @@ Document excerpt: {chunk["text"]}
             )
             transcribed_output = llm_fn(transcribed_input, input_context)
 
-            st.text_area(
-                label="Transcribed output:",
-                value=transcribed_output,
-                disabled=True,
-                height="content",
-            )
-
+            st.write(transcribed_output)
             spoken_output = tts_fn(transcribed_output)
             st.write("Text-to-speech:")
-            st.audio(spoken_output, autoplay=True)
+            st.audio(spoken_output, autoplay=True, width=480)
 
 
 if __name__ == "__main__":
